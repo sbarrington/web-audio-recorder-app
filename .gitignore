@@ -1,0 +1,14 @@
+# Ignore all .log files
+*.log
+
+# Ignore the node_modules directory
+app/node_modules/
+
+# Ignore the build directory
+build/
+
+# Ignore all uploads
+uploads/
+
+# Mac artefacts
+.DS_Store
