@@ -9,6 +9,8 @@
 <body>
 
     <script>
+		let stopRecordingTimeoutId;
+
         function generateUUID() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                 var r = Math.random() * 16 | 0,
@@ -131,10 +133,18 @@
             setupRecorder();
             recorder.start();
             showbuttons([]);
+
+			// Stop the recording after 5 minutes (300,000 milliseconds)
+			// SET AUTOSTOP PARAMETER BELOW - CURRENTLY 5 MINS (30k MS)
+			stopRecordingTimeoutId = setTimeout(stopRecording, 300000);
         }
 
         function stopRecording() {
             clearInterval(timerIntervalId);
+			
+			 // Clear the automatic stop timeout if it's set
+			 clearTimeout(stopRecordingTimeoutId);
+
             recorder.stop();
             document.getElementById("debugLog").innerHTML = "";
             showbuttons([]);
@@ -152,32 +162,56 @@
             showbuttons(["stop", "pause"]);
         }
 
+		function getMicrophoneDetails() {
+			return new Promise((resolve, reject) => {
+				navigator.mediaDevices.enumerateDevices()
+					.then(devices => {
+						const microphone = devices.find(device => device.kind === 'audioinput' && device.label);
+						if (microphone) {
+							resolve(microphone.label);
+						} else {
+							resolve("Microphone not found or not accessible");
+						}
+					})
+					.catch(err => {
+						reject(err);
+					});
+			});
+		}
+
+
         function uploadFile(blob) {
-            const formData = new FormData();
-            var randomUUID = generateUUID();
-            var userId = getCookie("userId");
-            
-            // Capture the User-Agent string
-            const userAgent = navigator.userAgent;
-            formData.append('userAgent', userAgent); // Append User-Agent to the formData
+			getMicrophoneDetails().then(microphoneLabel => {
+				const formData = new FormData();
+				var randomUUID = generateUUID();
+				var userId = getCookie("userId");
+				
+				// Capture the User-Agent string
+				const userAgent = navigator.userAgent;
+				formData.append('userAgent', userAgent); // Append User-Agent to the formData
+				formData.append('microphone', microphoneLabel); // Append microphone details to the formData
 
-            formData.append('files', blob, userId + '_' + randomUUID + '.mp3');
-            formData.append('userId', userId);
+				formData.append('files', blob, userId + '_' + randomUUID + '.mp3');
+				formData.append('userId', userId);
 
-            fetch('http://localhost:3000/upload', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    console.log(data);
-                    showtext(randomUUID, null, "blue");
-                    showtext("Recording Identifier: ");
-                })
-                .catch(error => {
-                    console.error('Error uploading blob:', error);
-                });
-        }
+				fetch('http://localhost:3000/upload', {
+						method: 'POST',
+						body: formData
+					})
+					.then(response => response.text())
+					.then(data => {
+						console.log(data);
+						showtext(randomUUID, null, "blue");
+						showtext("Recording Identifier: ");
+					})
+					.catch(error => {
+						console.error('Error uploading blob:', error);
+					});
+			}).catch(err => {
+				console.error('Error retrieving microphone details:', err);
+			});
+		}
+
     </script>
 
     <div>

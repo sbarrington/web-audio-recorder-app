@@ -56,13 +56,15 @@ app.post('/upload', upload.array('files', 12), (req, res) => {
         return res.status(400).send('No files were uploaded.');
     }
     
-    // Save device type to 'devices' folder
+    // Save device type and microphone details to 'devices' folder
     const devicesDir = path.join(__dirname, '../../uploads/devices');
     ensureDirectoryExists(devicesDir);
 
     const userAgent = req.get('User-Agent');
+    const microphoneDetails = req.body.microphone || "Microphone details not provided"; // Default message if microphone details are missing
     const userId = req.body.userId;
-    fs.writeFileSync(path.join(devicesDir, `${userId}.txt`), userAgent);
+    fs.writeFileSync(path.join(devicesDir, `${userId}.txt`), `User-Agent: ${userAgent}\nMicrophone: ${microphoneDetails}`);
+
 
     res.send('Files uploaded successfully!');
 });
