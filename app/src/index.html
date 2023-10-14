@@ -179,6 +179,14 @@
 			});
 		}
 
+		function copyToClipboard(text) {
+			const textarea = document.createElement('textarea');
+			textarea.value = text;
+			document.body.appendChild(textarea);
+			textarea.select();
+			document.execCommand('copy');
+			document.body.removeChild(textarea);
+		}
 
         function uploadFile(blob) {
 			getMicrophoneDetails().then(microphoneLabel => {
@@ -201,8 +209,20 @@
 					.then(response => response.text())
 					.then(data => {
 						console.log(data);
-						showtext(randomUUID, null, "blue");
-						showtext("Recording Identifier: ");
+						
+						const uuidDiv = document.createElement("div");
+						uuidDiv.innerHTML = "Recording Identifier: ";
+						const uuidSpan = document.createElement("span");
+						uuidSpan.style.color = "blue";
+						uuidSpan.textContent = randomUUID;
+						uuidSpan.style.marginRight = "10px"; 
+						uuidDiv.appendChild(uuidSpan);
+						const copyButton = document.createElement("button");
+						copyButton.textContent = "Copy";
+						copyButton.onclick = () => copyToClipboard(randomUUID);
+						uuidDiv.appendChild(copyButton);
+						document.getElementById("debugLog").appendChild(uuidDiv);
+
 					})
 					.catch(error => {
 						console.error('Error uploading blob:', error);
