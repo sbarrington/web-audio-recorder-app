@@ -1,229 +1,200 @@
 <!doctype html>
 <html>
-	<head>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		
-		<script type="text/javascript" src="../../dist/audiorecorder.js"></script>
-	</head>
-	<body>		
-		<script>
-			// Establish cookie 
-			function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="../../dist/audiorecorder.js"></script>
+</head>
+
+<body>
+
+    <script>
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                 var r = Math.random() * 16 | 0,
                     v = c === 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
             });
-        	}
+        }
 
-				function setUniqueIdentifierCookie() {
-				const cookieName = "userId";
-				let userId = getCookie(cookieName);
+        function setUniqueIdentifierCookie() {
+            const cookieName = "userId";
+            let userId = getCookie(cookieName);
 
-				if (!userId) {
-					userId = generateUUID();
-					const expirationDate = new Date();
-					expirationDate.setTime(expirationDate.getTime() + (60 * 24 * 60 * 60 * 1000)); // 60 days in milliseconds
-					document.cookie = `${cookieName}=${userId}; expires=${expirationDate.toUTCString()}; path=/`;
-				}
-			}
+            if (!userId) {
+                userId = generateUUID();
+                const expirationDate = new Date();
+                expirationDate.setTime(expirationDate.getTime() + (60 * 24 * 60 * 60 * 1000));
+                document.cookie = `${cookieName}=${userId}; expires=${expirationDate.toUTCString()}; path=/`;
+            }
+        }
 
-				function getCookie(cookieName) {
-				const cookies = document.cookie.split("; ");
-				for (let i = 0; i < cookies.length; i++) {
-					const cookie = cookies[i].split("=");
-					if (cookie[0] === cookieName) {
-					return cookie[1];
-					}
-				}
-				return null;
-			}
+        function getCookie(cookieName) {
+            const cookies = document.cookie.split("; ");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].split("=");
+                if (cookie[0] === cookieName) {
+                    return cookie[1];
+                }
+            }
+            return null;
+        }
 
-			setUniqueIdentifierCookie();
-			console.log(document.cookie)
+        setUniqueIdentifierCookie();
+        console.log(document.cookie);
 
-			function showtext(str, url = null, color = "black") {
-				const debugLog = document.getElementById("debugLog");
-				
-				// Find the element with the "Recording in progress" text
-				const recordingInProgressElement = Array.from(debugLog.children).find(element => element.textContent === "Recording in progress");
-				
-				// Remove the element if found
-				if (recordingInProgressElement) {
-					debugLog.removeChild(recordingInProgressElement);
-				}
-				
-				const newDiv = document.createElement("div");
-				newDiv.style.color = color; // Set the color
-				newDiv.appendChild(document.createTextNode(str));
-				debugLog.prepend(newDiv);
-			}
-			
-			function showrecording(url) {
-				// Download link
-				const newA = document.createElement("a");
-				newA.href = url;
-				newA.download = "recording.mp3";
-				//newA.appendChild(document.createTextNode("Save mp3 file"));
-				document.getElementById("debugLog").prepend(newA);
-				
-				// Embedded audio player
-				const newAudio = document.createElement("audio");
-				newAudio.src = url;
-				newAudio.controls = true;
-				document.getElementById("debugLog").prepend(newAudio);
-			}
-			
-			// Enable only the listed buttons
-			function showbuttons(enabledButtons) {
-				const buttons = ["start", "stop"]//, "pause", "resume"];
-				
-				for (let buttonName of buttons) {
-					document.getElementById("id_" + buttonName).disabled = !enabledButtons.includes(buttonName);
-				}
-			}
-			
-			let audioData = []; // Store the encoded MP3 data chunks
-			let recorder = null;
-			
-			// For debugging
-			let timerIntervalId = null;
-			
-			// Preload the worker immediately on page load to enable recording to start instantly
-			AudioRecorder.preload("../../dist/mp3worker.js");
-			
-			function setupRecorder() {
-				audioData = []; // clear old recorded data
-				
-				recorder = new AudioRecorder({
-					recordingGain : 1, // Initial recording volume
-					encoderBitRate : 96, // MP3 bit rate
-					streaming : true, // Data will be returned in chunks (ondataavailable callback) as it is encoded,
-										// rather than at the end as one large blob
-					streamBufferSize : 50000, // Size of encoded mp3 data chunks returned by ondataavailable					
-					constraints : { // Optional audio constraints, see https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-						channelCount : 1, // Set to 2 to hint for stereo if it's available
-						autoGainControl : true,
-						echoCancellation : true,
-						noiseSuppression : true
-					},
-					
-					// Used for debugging only. Force using the older script processor instead of AudioWorklet.
-				
-				});
-				
-				recorder.ondataavailable = (data) => {
-					console.log("data", data.length);
-					audioData.push(data);
-				};
-				
-				recorder.onstart = () => {
-					document.getElementById("debugLog").innerHTML = ""; // OPTIONAL: uncomment to clear the previous recording
-					showtext("Recording in progress", null, "red");
-					showbuttons(["stop", "pause"]);
-					
-					timerIntervalId = setInterval(() => {
-						document.getElementById("id_timer").innerHTML = (recorder.time / 1000.0).toFixed(2) + "s";
-					}, 100);
-				};
-				
-				recorder.onstop = () => {
-					//showtext("Recording stopped.");
+        function showtext(str, url = null, color = "black") {
+            const debugLog = document.getElementById("debugLog");
+            const recordingInProgressElement = Array.from(debugLog.children).find(element => element.textContent === "Recording in progress");
+            if (recordingInProgressElement) {
+                debugLog.removeChild(recordingInProgressElement);
+            }
+            const newDiv = document.createElement("div");
+            newDiv.style.color = color;
+            newDiv.appendChild(document.createTextNode(str));
+            debugLog.prepend(newDiv);
+        }
 
-					// Combine all the mp3 data chunks from the audioData array into a Blob
-					let mp3Blob = new Blob(audioData, {type : "audio/mpeg"});
-					let mp3BlobUrl = URL.createObjectURL(mp3Blob);
-					showrecording(mp3BlobUrl);
-					showbuttons(["start"]);
+        function showrecording(url) {
+            const newA = document.createElement("a");
+            newA.href = url;
+            newA.download = "recording.mp3";
+            document.getElementById("debugLog").prepend(newA);
 
-					// Upload the generated mp3 blob
-					uploadFile(mp3Blob);
-				};
+            const newAudio = document.createElement("audio");
+            newAudio.src = url;
+            newAudio.controls = true;
+            document.getElementById("debugLog").prepend(newAudio);
+        }
 
-				
-				recorder.onerror = (error) => {
-					console.log(error);
-					showtext("Recording error " + String(error));
-					showbuttons(["start"]);
-				};
-			}
-			
-			function startRecording() {
-				setupRecorder();
-				//showtext("Recording starting...");
-				recorder.start();
-				showbuttons([]);
-			}
-			
-			function stopRecording() {
-				//showtext("Stopping recording at " + String(recorder.time / 1000.0) + " seconds...");
-				clearInterval(timerIntervalId);
-				recorder.stop();
-				document.getElementById("debugLog").innerHTML = ""; // OPTIONAL: uncomment to clear the previous recording
-				showbuttons([]);
-			}
-			
-			function pause() {
-				showtext("Pausing");
-				recorder.pause();
-				showbuttons(["stop", "resume"]);
-			}
-			
-			function resume() {
-				showtext("Resuming");
-				recorder.resume();
-				showbuttons(["stop", "pause"]);
-			}
+        function showbuttons(enabledButtons) {
+            const buttons = ["start", "stop"];
+            for (let buttonName of buttons) {
+                document.getElementById("id_" + buttonName).disabled = !enabledButtons.includes(buttonName);
+            }
+        }
 
-			function uploadFile(blob) {
-				const formData = new FormData();
-				
-				var randomUUID = generateUUID();
-				var userId = getCookie("userId"); // Extract userId from the cookie
+        let audioData = [];
+        let recorder = null;
+        let timerIntervalId = null;
 
-				formData.append('files', blob, userId + '_' + randomUUID + '.mp3');
-				formData.append('userId', userId); // Add userId to the form data
+        AudioRecorder.preload("../../dist/mp3worker.js");
 
-				fetch('http://localhost:3000/upload', {
-					method: 'POST',
-					body: formData
-				})
-				.then(response => response.text())
-				.then(data => {
-					console.log(data); // Response from the server
-					showtext(randomUUID, null, "blue");
-					showtext("Recording Identifier: ");
-				})
-				.catch(error => {
-					console.error('Error uploading blob:', error);
-				});
-			}
+        function setupRecorder() {
+            audioData = [];
+            recorder = new AudioRecorder({
+                recordingGain: 1,
+                encoderBitRate: 96,
+                streaming: true,
+                streamBufferSize: 50000,
+                constraints: {
+                    channelCount: 1,
+                    autoGainControl: true,
+                    echoCancellation: true,
+                    noiseSuppression: true
+                },
+            });
 
+            recorder.ondataavailable = (data) => {
+                console.log("data", data.length);
+                audioData.push(data);
+            };
 
-		
-		</script>
+            recorder.onstart = () => {
+                document.getElementById("debugLog").innerHTML = "";
+                showtext("Recording in progress", null, "red");
+                showbuttons(["stop", "pause"]);
 
-		
-		
-		<div>
-			<p style="font-size: 20px; font-weight: bold;">Audio Collector</p>
-			<p></p>
-			<p>Welcome to our audio collector. To begin, please record your audio here. **Indepth instructions go here*** </p>
-			<button id="id_start" onclick="startRecording()">
-				<span style="color: green; font-size: 12px; position: relative; top: 1px; display: inline-block; height: 20px; width: 16px; text-align: center;">▶</span>
-				start recording
-			  </button>
-			  <button id="id_stop" disabled onclick="stopRecording()">
-				<span style="color: red; font-size: 16px; position: relative; top: -2px; display: inline-block; height: 20px; width: 16px; text-align: center;">■</span>
-				stop recording
-				<span id="id_timer"></span>
-				<span id="id_volume"></span>
-			  </button>
+                timerIntervalId = setInterval(() => {
+                    document.getElementById("id_timer").innerHTML = (recorder.time / 1000.0).toFixed(2) + "s";
+                }, 100);
+            };
 
-		<!-- <div>Random UUID: <span id="randomUUID"></span></div> -->
-		
-		
-		<hr>
-		<div id="debugLog"></div>
-	</body>
+            recorder.onstop = () => {
+                let mp3Blob = new Blob(audioData, {
+                    type: "audio/mpeg"
+                });
+                let mp3BlobUrl = URL.createObjectURL(mp3Blob);
+                showrecording(mp3BlobUrl);
+                showbuttons(["start"]);
+                uploadFile(mp3Blob);
+            };
+
+            recorder.onerror = (error) => {
+                console.log(error);
+                showtext("Recording error " + String(error));
+                showbuttons(["start"]);
+            };
+        }
+
+        function startRecording() {
+            setupRecorder();
+            recorder.start();
+            showbuttons([]);
+        }
+
+        function stopRecording() {
+            clearInterval(timerIntervalId);
+            recorder.stop();
+            document.getElementById("debugLog").innerHTML = "";
+            showbuttons([]);
+        }
+
+        function pause() {
+            showtext("Pausing");
+            recorder.pause();
+            showbuttons(["stop", "resume"]);
+        }
+
+        function resume() {
+            showtext("Resuming");
+            recorder.resume();
+            showbuttons(["stop", "pause"]);
+        }
+
+        function uploadFile(blob) {
+            const formData = new FormData();
+            var randomUUID = generateUUID();
+            var userId = getCookie("userId");
+            
+            // Capture the User-Agent string
+            const userAgent = navigator.userAgent;
+            formData.append('userAgent', userAgent); // Append User-Agent to the formData
+
+            formData.append('files', blob, userId + '_' + randomUUID + '.mp3');
+            formData.append('userId', userId);
+
+            fetch('http://localhost:3000/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                    showtext(randomUUID, null, "blue");
+                    showtext("Recording Identifier: ");
+                })
+                .catch(error => {
+                    console.error('Error uploading blob:', error);
+                });
+        }
+    </script>
+
+    <div>
+        <p style="font-size: 20px; font-weight: bold;">Audio Collector</p>
+        <p></p>
+        <p>Welcome to our audio collector. To begin, please record your audio here. **Indepth instructions go here*** </p>
+        <button id="id_start" onclick="startRecording()">
+            <span style="color: green; font-size: 12px; position: relative; top: 1px; display: inline-block; height: 20px; width: 16px; text-align: center;">▶</span> start recording
+        </button>
+        <button id="id_stop" disabled onclick="stopRecording()">
+            <span style="color: red; font-size: 16px; position: relative; top: -2px; display: inline-block; height: 20px; width: 16px; text-align: center;">■</span> stop recording <span id="id_timer"></span>
+            <span id="id_volume"></span>
+        </button>
+        <hr>
+        <div id="debugLog"></div>
+    </div>
+
+</body>
+
 </html>

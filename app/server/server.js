@@ -10,6 +10,14 @@ const port = 3000;
 const cors = require('cors');
 app.use(cors());
 
+// Utility function to ensure directory exists
+function ensureDirectoryExists(dirPath) {
+    if (!fs.existsSync(dirPath)) {
+        console.log(`Creating directory: ${dirPath}`);
+        fs.mkdirSync(dirPath, { recursive: true });
+    }
+}
+
 console.log(__dirname);
 
 
@@ -21,7 +29,7 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         // Extract userId from the file's original name
         const userId = file.originalname.split('_')[0];
-        const userDir = path.join(__dirname, '../../uploads', userId); // User specific directory path
+        const userDir = path.join(__dirname, '../../uploads/recordings', userId); // User specific directory path
         
         // Check if user specific directory exists; if not, create it
         if (!fs.existsSync(userDir)) {
@@ -47,6 +55,14 @@ app.post('/upload', upload.array('files', 12), (req, res) => {
     if (!req.files || req.files.length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
+    
+    // Save device type to 'devices' folder
+    const devicesDir = path.join(__dirname, '../../uploads/devices');
+    ensureDirectoryExists(devicesDir);
+
+    const userAgent = req.get('User-Agent');
+    const userId = req.body.userId;
+    fs.writeFileSync(path.join(devicesDir, `${userId}.txt`), userAgent);
 
     res.send('Files uploaded successfully!');
 });
