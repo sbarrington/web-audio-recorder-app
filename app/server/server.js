@@ -19,19 +19,20 @@ app.use(express.static('../src'));
 // Set up Multer storage configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadsDir = path.join(__dirname, '../../uploads');
-        if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir);
+        // Extract userId from the file's original name
+        const userId = file.originalname.split('_')[0];
+        const userDir = path.join(__dirname, '../../uploads', userId); // User specific directory path
+        
+        // Check if user specific directory exists; if not, create it
+        if (!fs.existsSync(userDir)) {
+            console.log(`Creating directory: ${userDir}`);  // Log the directory being created
+            fs.mkdirSync(userDir, { recursive: true });  // The `recursive` flag ensures that 'uploads' is also created if it doesn't exist
         }
-        cb(null, uploadsDir);
+        
+        cb(null, userDir); // Set the destination to the user specific directory
     },
     filename: (req, file, cb) => {
-         cb(null, file.originalname); // ORIGINAL! this is where the filename is set 
-        // cb(null, 'XYZ.mp3'); // SPECIFEIED file name
-        //const randomId = uuid.v4(); // RANDOM ID filename - now doing on the front end. Generate a random ID
-        //const fileExtension = path.extname(file.originalname);
-        //const fileName = `${randomId}${fileExtension}`;
-        //cb(null, fileName);
+        cb(null, file.originalname.split('_').slice(1).join('_')); // Remove the userId from the filename
     }
 });
 

@@ -8,9 +8,12 @@ The core client recording code was forked from the open source Vocaroo directory
 This code requires two app servers to be run: a front end client port (defaults to 8080) and a backend sevrer port (defaults to 3000). The two must be running simultaneously. 
 
 * Navigate to the 'audio-speech-recorder' folder 
+* For the first run- install packages: npm install
 * Run the backend express server: node server/server.js
 * Run the broswer client server: npm start
 * This will open a browser window and the app will be running. 
+
+The recorded files will be saved to a folder 2 levels above the server.js file, in the overall repo context. This 'uploads' folder will be blocked from upload by the gitignore file, but please do take care to double check that you are not including any recorded data in version controlling. 
 
 ## Integration with Qualtrics or MTurk
 * A unique identifier is returned at the point of recording completion. 

@@ -7,6 +7,41 @@
 	</head>
 	<body>		
 		<script>
+			// Establish cookie 
+			function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0,
+                    v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        	}
+
+				function setUniqueIdentifierCookie() {
+				const cookieName = "userId";
+				let userId = getCookie(cookieName);
+
+				if (!userId) {
+					userId = generateUUID();
+					const expirationDate = new Date();
+					expirationDate.setTime(expirationDate.getTime() + (60 * 24 * 60 * 60 * 1000)); // 60 days in milliseconds
+					document.cookie = `${cookieName}=${userId}; expires=${expirationDate.toUTCString()}; path=/`;
+				}
+			}
+
+				function getCookie(cookieName) {
+				const cookies = document.cookie.split("; ");
+				for (let i = 0; i < cookies.length; i++) {
+					const cookie = cookies[i].split("=");
+					if (cookie[0] === cookieName) {
+					return cookie[1];
+					}
+				}
+				return null;
+			}
+
+			setUniqueIdentifierCookie();
+			console.log(document.cookie)
+
 			function showtext(str, url = null, color = "black") {
 				const debugLog = document.getElementById("debugLog");
 				
@@ -29,7 +64,7 @@
 				const newA = document.createElement("a");
 				newA.href = url;
 				newA.download = "recording.mp3";
-				newA.appendChild(document.createTextNode("Save mp3 file"));
+				//newA.appendChild(document.createTextNode("Save mp3 file"));
 				document.getElementById("debugLog").prepend(newA);
 				
 				// Embedded audio player
@@ -140,20 +175,14 @@
 				showbuttons(["stop", "pause"]);
 			}
 
-			function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0,
-                    v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        	}
-
 			function uploadFile(blob) {
 				const formData = new FormData();
 				
 				var randomUUID = generateUUID();
+				var userId = getCookie("userId"); // Extract userId from the cookie
 
-				formData.append('files', blob, randomUUID + '.mp3');  // 'recording.mp3' is the file name you want to use
+				formData.append('files', blob, userId + '_' + randomUUID + '.mp3');
+				formData.append('userId', userId); // Add userId to the form data
 
 				fetch('http://localhost:3000/upload', {
 					method: 'POST',
@@ -162,7 +191,6 @@
 				.then(response => response.text())
 				.then(data => {
 					console.log(data); // Response from the server
-					//document.getElementById('randomUUID').textContent = randomUUID; PREVIOUS: used to print as a static element instead of to debug log
 					showtext(randomUUID, null, "blue");
 					showtext("Recording Identifier: ");
 				})
@@ -171,13 +199,14 @@
 				});
 			}
 
+
 		
 		</script>
 
 		
 		
 		<div>
-			<p style="font-size: 20px; font-weight: bold;">Farid Lab Audio Collector</p>
+			<p style="font-size: 20px; font-weight: bold;">Audio Collector</p>
 			<p></p>
 			<p>Welcome to our audio collector. To begin, please record your audio here. **Indepth instructions go here*** </p>
 			<button id="id_start" onclick="startRecording()">
