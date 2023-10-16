@@ -21,7 +21,7 @@
     "start": "concurrently \"npm:watch-main\" \"npm:watch-worker\" \"npm:live-server\" \"npm:server\"",
     "watch-main": "webpack --watch",
     "watch-worker": "webpack --watch --config webpack.worker-config.js",
-    "live-server": "live-server --host=0.0.0.0 --open=/src/",
+    "live-server": "live-server --host=0.0.0.0 --open=/",
     "server": "node server/server.js"
   },
   "license": "MIT",
