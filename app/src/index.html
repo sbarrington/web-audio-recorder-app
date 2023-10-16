@@ -234,9 +234,31 @@
     </script>
 
     <div>
-        <p style="font-size: 20px; font-weight: bold;">Audio Collector</p>
+        <p style="font-size: 20px; font-weight: bold;">Audio Recorder</p>
         <p></p>
-        <p>Welcome to our audio collector. To begin, please record your audio here. **Indepth instructions go here*** </p>
+
+        <style>
+            ul.round-bullets {
+                list-style-type: disc; /* Use 'disc' for round bullets */
+            }
+        </style>
+
+        <p>Please use this webpage to record yourself speaking aloud the prompts given to you in the MTurk study.
+            <ul class="round-bullets">
+                <li>To record, press 'start recording'.</li>
+                <li>To stop the recording, press 'stop recording'.</li>
+            </ul>
+
+            Once you have completed recording:
+            <ul class="round-bullets">
+                    <li>A 'recording identifier' will be provided in <span style="color: blue;">blue</span>. Copy this back into your Turk response.</li>
+                    <li>You can check your recording by listening back using the 'play' button.</li>
+                    <li>You can re-record yourself as many times as you wish, but only paste the final identifier into the Turk response.</li>
+                </ul>
+
+            
+
+             </p>
         <button id="id_start" onclick="startRecording()">
             <span style="color: green; font-size: 12px; position: relative; top: 1px; display: inline-block; height: 20px; width: 16px; text-align: center;">▶</span> start recording
         </button>
