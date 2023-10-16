@@ -18,7 +18,11 @@
   "main": "dist/audiorecorder.js",
   "scripts": {
     "build": "webpack && webpack --config webpack.worker-config.js",
-    "start": "concurrently \"webpack --watch\" \"webpack --watch --config webpack.worker-config.js\" \"live-server --open=/src/\""
+    "start": "concurrently \"npm:watch-main\" \"npm:watch-worker\" \"npm:live-server\" \"npm:server\"",
+    "watch-main": "webpack --watch",
+    "watch-worker": "webpack --watch --config webpack.worker-config.js",
+    "live-server": "live-server --open=/src/",
+    "server": "node server/server.js"
   },
   "license": "MIT",
   "devDependencies": {
