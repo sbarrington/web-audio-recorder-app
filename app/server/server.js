@@ -70,6 +70,6 @@ app.post('/upload', upload.array('files', 12), (req, res) => {
 });
 
 // Start the server
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });

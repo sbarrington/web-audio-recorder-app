@@ -201,7 +201,7 @@
 				formData.append('files', blob, userId + '_' + randomUUID + '.mp3');
 				formData.append('userId', userId);
 
-				fetch('http://www.researchaudiorecorder.com:3000/upload', {
+				fetch('http://localhost:3000/upload', {
 						method: 'POST',
 						body: formData
 					})
