@@ -167,6 +167,7 @@
         }
 
         function resetRecording() {
+            document.getElementById("id_reset").disabled = true; // Disable the reset button immediately
             // Stop the current recording if it's in progress
             if (recorder && recorder.state === "recording") {
                 stopRecording();
@@ -259,6 +260,12 @@
             ul.round-bullets {
                 list-style-type: disc; /* Use 'disc' for round bullets */
             }
+
+            button {
+                height: 40px;       /* Set the same height for all buttons */
+                vertical-align: middle; /* Align buttons vertically */
+            }
+
         </style>
 
         <p>Please use this webpage to record yourself speaking aloud the prompts given to you in the MTurk study.
