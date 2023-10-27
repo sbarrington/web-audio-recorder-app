@@ -156,7 +156,7 @@
 
         function pause() {
             showtext("Pausing");
-            recorder.pause();
+            recorder.pause();åç
             showbuttons(["stop", "resume"]);
         }
 
@@ -168,6 +168,8 @@
 
         function resetRecording() {
             document.getElementById("id_reset").disabled = true; // Disable the reset button immediately
+            document.getElementById("id_start").disabled = false; // Enable the start button
+            
             // Stop the current recording if it's in progress
             if (recorder && recorder.state === "recording") {
                 stopRecording();
@@ -283,7 +285,7 @@
 
              </p>
 
-        <button id="id_start" onclick="startRecording()">
+        <button id="id_start" onclick="startRecording()" disabled>
             <span style="color: green; font-size: 12px; position: relative; top: 1px; display: inline-block; height: 20px; width: 16px; text-align: center;">▶</span> start recording
         </button>
         <button id="id_stop" disabled onclick="stopRecording()">
