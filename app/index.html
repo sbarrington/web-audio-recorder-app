@@ -69,9 +69,14 @@
         }
 
         function showbuttons(enabledButtons) {
-            const buttons = ["start", "stop"];
+            const buttons = ["start", "stop", "reset"];
             for (let buttonName of buttons) {
-                document.getElementById("id_" + buttonName).disabled = !enabledButtons.includes(buttonName);
+                if (buttonName === "reset") {
+                    // Handle reset button separately
+                    document.getElementById("id_" + buttonName).disabled = enabledButtons.includes("start") ? false : true;
+                } else {
+                    document.getElementById("id_" + buttonName).disabled = !enabledButtons.includes(buttonName);
+                }
             }
         }
 
@@ -159,6 +164,19 @@
             showtext("Resuming");
             recorder.resume();
             showbuttons(["stop", "pause"]);
+        }
+
+        function resetRecording() {
+            // Stop the current recording if it's in progress
+            if (recorder && recorder.state === "recording") {
+                stopRecording();
+            }
+
+            // Clear the debugLog
+            document.getElementById("debugLog").innerHTML = "";
+
+            // Clear the clipboard
+            copyToClipboard("");
         }
 
 		function getMicrophoneDetails() {
@@ -257,6 +275,7 @@
                 </ul>
 
              </p>
+
         <button id="id_start" onclick="startRecording()">
             <span style="color: green; font-size: 12px; position: relative; top: 1px; display: inline-block; height: 20px; width: 16px; text-align: center;">▶</span> start recording
         </button>
@@ -264,6 +283,9 @@
             <span style="color: red; font-size: 16px; position: relative; top: -2px; display: inline-block; height: 20px; width: 16px; text-align: center;">■</span> stop recording <span id="id_timer"></span>
             <span id="id_volume"></span>
         </button>
+        <button id="id_reset" onclick="resetRecording()" style="margin-left: 10px;" disabled>reset recorder
+        </button>
+
         <hr>
         <div id="debugLog"></div>
     </div>
