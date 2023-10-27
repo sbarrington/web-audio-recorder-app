@@ -71,7 +71,10 @@
         function showbuttons(enabledButtons) {
             const buttons = ["start", "stop", "reset"];
             for (let buttonName of buttons) {
-                if (buttonName === "reset") {
+                if (buttonName === "start") {
+                    // Disable the start button unless reset button is pressed or page is freshly loaded
+                    document.getElementById("id_" + buttonName).disabled = !enabledButtons.includes(buttonName);
+                } else if (buttonName === "reset") {
                     // Handle reset button separately
                     document.getElementById("id_" + buttonName).disabled = enabledButtons.includes("start") ? false : true;
                 } else {
@@ -169,7 +172,7 @@
         function resetRecording() {
             document.getElementById("id_reset").disabled = true; // Disable the reset button immediately
             document.getElementById("id_start").disabled = false; // Enable the start button
-            
+
             // Stop the current recording if it's in progress
             if (recorder && recorder.state === "recording") {
                 stopRecording();
@@ -251,6 +254,10 @@
 				console.error('Error retrieving microphone details:', err);
 			});
 		}
+
+        window.onload = function() {
+            showbuttons(["start"]);
+        }
 
     </script>
 
